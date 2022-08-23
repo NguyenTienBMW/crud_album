@@ -1,0 +1,49 @@
+.header-page {
+	margin-top: 10px;
+}
+.form-search {
+	display: flex;
+	justify-content: flex-end;
+}
+.header-title {
+	height: 78px;
+	text-align: center;
+	line-height: 78px;
+	vertical-align: middle;
+}
+.album-title {
+	display: flex;
+	justify-content: space-around;
+}
+.section-album {
+	border-right: 2px solid #fff;
+}
+table {
+	color: #000;
+}
+.form-group {
+	display: flex;
+	justify-content: space-between;
+}
+.col-form-label {
+	max-width: 150px;
+	width: 100%;
+}
+.header-table {
+	display: flex;
+	justify-content: space-between;
+}
+.table-flex {
+	display: flex;
+	justify-content: space-around;
+}
+.header-album {
+	display: flex;
+	justify-content: space-between;
+}
+.table-title {
+	height: 80px;
+	color: white;
+	display: flex;
+	align-items: center;
+}
