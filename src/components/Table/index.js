@@ -1,32 +1,19 @@
-import React, { useState } from "react";
-import "./index.css";
+import React, { useRef, useState } from "react";
+import { RowAlbum } from "./album";
+import { FormAdd } from "./form-add";
+import { HeaderSong } from "./header-song";
+import "./style.css";
 export default function Header() {
+	const formAddSongRef = useRef('');
 	const [musics, setMusics] = useState([
 		{
-			album: 1,
-			song: [
-				{
-					id: 1,
-					name: "Song1",
-					author: "Tien",
-					date: "22/08/2022",
-				},
-				{
-					id: 2,
-					name: "Song2",
-					author: "Tien",
-					date: "22/08/2022",
-				},
-				{
-					id: 3,
-					name: "Song3",
-					author: "Tien",
-					date: "22/08/2022",
-				},
-			],
+			id: 1,
+			album: 'album 1',
+			song: [],
 		},
 		{
-			album: 2,
+			id: 2,
+			album: 'album 2',
 			song: [
 				{
 					id: 1,
@@ -49,27 +36,54 @@ export default function Header() {
 			],
 		},
 	]);
-	const deleteItem = (album_id, id) => {
-		const newTodos = musics.map(item => {
-			if (item.album === album_id) {
-				setMusics(...musics, ...item.song.splice(id, 1));
-			}
-		});
-		return newTodos;
-	};
-	console.log(musics);
 
-	// const removeMyCheese = cheeseId => {
-	// 	console.log(cheeseId);
+	const handleAddAlbum = () => {
+		setMusics(prev => ([
+			{
+				id: musics[musics.length - 1]?.id + 1 ?? 1,
+				album: 'empty',
+				song: [],
+			},
+			...prev
+		]));
+	}
 
-	// 	setMyCheeses(prev => {
-	// 		const items = prev.items.filter(item => item.itemid !== cheeseId);
-	// 		return {
-	// 			...prev,
-	// 			items,
-	// 		};
-	// 	});
-	// };
+	const handleOk = (nameAlbum, index) => {
+		setMusics((prev) => {
+			prev[index].album = nameAlbum
+
+			return [
+				...prev
+			]
+		})
+	}
+
+	const handleDeleteAlbum = (index) => {
+		setMusics((prev) => {
+			prev.splice(index, 1)
+
+			return [
+				...prev
+			]
+		})
+	}
+
+	const handleClickAddSong = (index) => {
+		formAddSongRef.current.addSong(musics[index].album, index)
+	}
+
+	const handleAddSong = (nameSong, author, createdDate, index) => {
+		setMusics(prev => {
+			prev[index].song.push({
+				id: prev[index].song?.length === 0 ? 1 : prev[index].song[prev[index].song.length - 1].id + 1,
+				name: nameSong,
+				author: author,
+				date: createdDate,
+			})
+
+			return [...prev]
+		})
+	}
 
 	return (
 		<>
@@ -97,7 +111,7 @@ export default function Header() {
 							<div className="row table-title d-flex bg-primary">
 								<div className="col-8">DANH SÁCH ALBUM</div>
 								<div className="col-4">
-									<button type="button" className="btn btn-success">
+									<button type="button" className="btn btn-success" onClick={handleAddAlbum}>
 										Thêm album
 									</button>
 								</div>
@@ -105,77 +119,65 @@ export default function Header() {
 							<div className="row mt-5">
 								<div className="col-12">
 									{musics &&
-										musics.map(music => (
-											<table className="table table-bordered" key={music.album}>
+										musics.map((music, index) => (
+											<table className="table table-bordered" key={index}>
 												<thead>
 													<tr>
 														<th rowSpan="1" colSpan="3">
-															<div className="header-album">
-																<span>Tên album {music.album}</span>
-																<button
-																	type="button"
-																	className="btn btn-primary"
-																>
-																	Sửa tên
-																</button>
-															</div>
+															<RowAlbum title={music.album} handleOk={handleOk} index={index}/>
 														</th>
 														<th rowSpan="2" colSpan="1">
-															<button type="button" className="btn btn-primary">
+															<button 
+																type="button" 
+																className="btn btn-primary"
+																onClick={() => handleClickAddSong(index)}
+															>
 																Thêm bài
 															</button>
 															<button
 																type="button"
 																className="btn btn-danger ml-2"
+																onClick={() => handleDeleteAlbum(index)}
 															>
 																Xoá album
 															</button>
 														</th>
 													</tr>
 													<tr>
-														<th rowSpan="1" colSpan="1">
-															Tên bài hát
-														</th>
-														<th rowSpan="1" colSpan="1">
-															Nhạc sỹ
-														</th>
-														<th rowSpan="1" colSpan="1">
-															Ngày sáng tác
-														</th>
+														<HeaderSong />
 													</tr>
 												</thead>
-												<tbody>
-													{music.song.map(item => (
-														<tr key={item.id}>
-															<td>
-																<p>{item.name}</p>
-															</td>
-															<td>
-																<p>{item.author}</p>
-															</td>
-															<td>
-																<p>{item.date}</p>
-															</td>
-															<td>
-																<button
-																	type="button"
-																	className="btn btn-primary"
-																>
-																	Sửa
-																</button>
-																<button
-																	type="button"
-																	className="btn btn-danger ml-2"
-																	onClick={() =>
-																		deleteItem(music.album, item.id)
-																	}
-																>
-																	Xoá
-																</button>
-															</td>
-														</tr>
-													))}
-												</tbody>
+												<tbody>{
+													music.song.length > 0 
+														? music?.song.map(item => (
+															<tr key={item.id}>
+																<td>
+																	<p>{item.name}</p>
+																</td>
+																<td>
+																	<p>{item.author}</p>
+																</td>
+																<td>
+																	<p>{item.date}</p>
+																</td>
+																<td>
+																	<button
+																		type="button"
+																		className="btn btn-primary"
+																	>
+																		Sửa
+																	</button>
+																	<button
+																		type="button"
+																		className="btn btn-danger ml-2"
+																	>
+																		Xoá
+																	</button>
+																</td>
+															</tr>
+														))
+														: <tr><td colSpan={4}><p>Không có bài hát</p></td></tr>
+												}</tbody>
 											</table>
 										))}
 								</div>
@@ -183,66 +185,7 @@ export default function Header() {
 						</div>
 						<div className="col-4">
 							<p>Thông tin bài hát</p>
-							<form>
-								<div className="form-group">
-									<label htmlFor="inputEmail3" className="col-form-label">
-										Tên Album
-									</label>
-									<div>
-										<input
-											type="email"
-											className="form-control"
-											placeholder="Tên album"
-										/>
-									</div>
-								</div>
-								<div className="form-group">
-									<label htmlFor="inputEmail3" className="col-form-label">
-										Tên bài hát
-									</label>
-									<div className="">
-										<input
-											type="email"
-											className="form-control"
-											placeholder="Tên bài hát"
-										/>
-									</div>
-								</div>
-								<div className="form-group">
-									<label htmlFor="inputEmail3" className="col-form-label">
-										Nhạc sỹ
-									</label>
-									<div className="">
-										<input
-											type="email"
-											className="form-control"
-											placeholder="Nhạc sỹ"
-										/>
-									</div>
-								</div>
-								<div className="form-group">
-									<label htmlFor="inputEmail3" className="col-form-label">
-										Ngày sáng tác
-									</label>
-									<div className="">
-										<input
-											type="date"
-											className="form-control"
-											placeholder="Nhà sáng tác"
-										/>
-									</div>
-								</div>
-								<div className="form-group">
-									<div>
-										<button type="submit" className="btn btn-primary">
-											Thêm bài hát
-										</button>
-										<button type="submit" className="ml-3  btn btn-primary">
-											Huỷ
-										</button>
-									</div>
-								</div>
-							</form>
+							<FormAdd ref={formAddSongRef} handleAddSong={handleAddSong}/>
 						</div>
 					</div>
 				</div>
